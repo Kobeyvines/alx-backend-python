@@ -45,18 +45,27 @@ def create_table(connection):
     cursor.close()
 
 #Insert data into table if it does not already exist (by email uniqueness check)
-def insert_data(connection, data):
+import csv
+
+def insert_data(connection, filename):
     cursor = connection.cursor()
-    for row in data:
-        name, email, age = row
-        cursor.execute("SELECT * FROM user_data WHERE email = %s", (email,))
-        result = cursor.fetchone()
-        if not result:
-            user_id = str(uuid.uuid4())
+
+    with open(filename, newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader)  # skip header if present
+
+        for row in reader:
+            if len(row) != 3:
+                print(f"Skipping invalid row: {row}")
+                continue
+
+            name, email, age = row
+
             cursor.execute("""
                 INSERT INTO user_data (user_id, name, email, age)
-                VALUES (%s, %s, %s, %s)
-            """, (user_id, name, email, age))
+                VALUES (UUID(), %s, %s, %s)
+            """, (name, email, age))
+
     connection.commit()
     cursor.close()
 
