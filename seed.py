@@ -9,15 +9,14 @@ import uuid
 def connect_db():
     return mysql.connector.connect(
         host="localhost",
-        user="root",
-        password=""
-        
+        user="alx_user",
+        password="strong_password"
     )
 
 #create database alx_prodev if it doesn't exist
 def create_database(connection):
     cursor = connection.cursor()
-    cursor.execute("CREATE DATABASE IF NOT EXITS ALX_prodev")
+    cursor.execute("CREATE DATABASE IF NOT EXISTS ALX_prodev")
     connection.commit()
     cursor.close()
     
@@ -25,8 +24,8 @@ def create_database(connection):
 def connect_to_prodev():
     return mysql.connector.connect(
         host="localhost",
-        user="user",
-        password="",
+        user="alx_user",
+        password="strong_password",
         database="ALX_prodev"
     )
     
