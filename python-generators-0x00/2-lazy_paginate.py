@@ -14,7 +14,7 @@ def connect_db():
 def paginate_users(page_size, offset):
     connection = connect_db()
     cursor = connection.cursor()
-    cursor.execute("SELECT user_id, name, email, age FROM user_data LIMIT %s OFFSET %s", (page_size, offset))
+    cursor.execute("SELECT * FROM user_data LIMIT %s OFFSET %s", (page_size, offset))
     rows = cursor.fetchall()
     cursor.close()
     connection.close()
