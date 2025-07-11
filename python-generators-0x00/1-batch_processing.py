@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 import mysql.connector
 
+
 # 🔧 Connect to the ALX_prodev database
 def connect_db():
     return mysql.connector.connect(
         host="localhost",
         user="alx_user",
         password="strong_password",
-        database="ALX_prodev"
+        database="ALX_prodev",
     )
+
 
 # Generator: fetch users in batches
 def stream_users_in_batches(batch_size):
@@ -25,11 +27,15 @@ def stream_users_in_batches(batch_size):
     cursor.close()
     connection.close()
 
+
 # Process each batch to filter users over age 25
 def batch_processing(batch_size):
     for batch in stream_users_in_batches(batch_size):  # loop 1
-        filtered_batch = [user for user in batch if user[3] > 25]  # loop 2 is hidden inside list comprehension
+        filtered_batch = [
+            user for user in batch if user[3] > 25
+        ]  # loop 2 is hidden inside list comprehension
         yield filtered_batch
+
 
 # Test run (for your learning; comment out before submission if required)
 if __name__ == "__main__":

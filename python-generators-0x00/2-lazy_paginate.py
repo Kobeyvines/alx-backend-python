@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 import mysql.connector
 
+
 # 🔧 Connect to the ALX_prodev database
 def connect_db():
     return mysql.connector.connect(
         host="localhost",
         user="alx_user",
         password="strong_password",
-        database="ALX_prodev"
+        database="ALX_prodev",
     )
-    
+
+
 # Function to fetch a single page with given offset
 def paginate_users(page_size, offset):
     connection = connect_db()
@@ -19,6 +21,7 @@ def paginate_users(page_size, offset):
     cursor.close()
     connection.close()
     return rows
+
 
 # Generator to lazily paginate
 def lazy_paginate(page_size):

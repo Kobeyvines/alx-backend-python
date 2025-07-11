@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 import mysql.connector
 
+
 # 🔧 Connect to the ALX_prodev database
 def connect_db():
     return mysql.connector.connect(
         host="localhost",
         user="alx_user",
         password="strong_password",
-        database="ALX_prodev"
+        database="ALX_prodev",
     )
-    
+
+
 # Generator: yield ages one by one
 def stream_user_ages():
     connection = connect_db()
@@ -21,6 +23,7 @@ def stream_user_ages():
 
     cursor.close()
     connection.close()
+
 
 # Calculate average using the generator
 def calculate_average_age():
