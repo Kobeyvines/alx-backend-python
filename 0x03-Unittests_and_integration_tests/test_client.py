@@ -27,7 +27,10 @@ class TestGithubOrgClient(unittest.TestCase):
 
     def test_public_repos_url(self):
         """Test _public_repos_url returns expected URL."""
-        with patch.object(GithubOrgClient, "org", new_callable=PropertyMock) as mock_org:
+        with patch.object(
+            GithubOrgClient, "org",
+            new_callable=PropertyMock
+        ) as mock_org:
             mock_org.return_value = {"repos_url": "some_url"}
             client = GithubOrgClient("test")
             self.assertEqual(client._public_repos_url, "some_url")
@@ -39,7 +42,10 @@ class TestGithubOrgClient(unittest.TestCase):
             {"name": "repo1", "license": {"key": "mit"}},
             {"name": "repo2", "license": {"key": "apache-2.0"}},
         ]
-        with patch.object(GithubOrgClient, "_public_repos_url", new_callable=PropertyMock) as mock_url:
+        with patch.object(
+            GithubOrgClient, "_public_repos_url",
+            new_callable=PropertyMock
+        ) as mock_url:
             mock_url.return_value = "url"
             client = GithubOrgClient("test")
             self.assertEqual(client.public_repos(), ["repo1", "repo2"])
@@ -52,7 +58,10 @@ class TestGithubOrgClient(unittest.TestCase):
     ])
     def test_has_license(self, repo, license_key, expected):
         """Test has_license static method."""
-        self.assertEqual(GithubOrgClient.has_license(repo, license_key), expected)
+        self.assertEqual(
+            GithubOrgClient.has_license(repo, license_key),
+            expected
+        )
 
 
 @parameterized_class([
@@ -92,7 +101,10 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
     def test_public_repos_with_license(self):
         """Test public_repos filtered by license."""
         client = GithubOrgClient("google")
-        self.assertEqual(client.public_repos(license="apache-2.0"), self.apache2_repos)
+        self.assertEqual(
+            client.public_repos(license="apache-2.0"),
+            self.apache2_repos
+        )
 
 
 if __name__ == "__main__":
