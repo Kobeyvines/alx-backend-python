@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Unit tests for utils.access_nested_map, utils.get_json, and utils.memoize
 """
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/..')
 import unittest
 from unittest.mock import patch, Mock
 from parameterized import parameterized
