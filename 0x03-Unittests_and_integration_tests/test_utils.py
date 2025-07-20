@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Unit tests for utils.access_nested_map, utils.get_json, and utils.memoize
-"""
+"""Unit tests for utils.access_nested_map, utils.get_json, and utils.memoize."""
 
 import sys
 import os
@@ -8,8 +7,10 @@ import unittest
 from unittest.mock import patch, Mock
 from parameterized import parameterized
 
-# Adjust sys.path for module import before local imports
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+# Adjust sys.path before local imports (E402 fix)
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
+)
 
 from utils import access_nested_map, get_json, memoize
 
@@ -20,7 +21,7 @@ class TestAccessNestedMap(unittest.TestCase):
     @parameterized.expand([
         ({"a": 1}, ("a",), 1),
         ({"a": {"b": 2}}, ("a",), {"b": 2}),
-        ({"a": {"b": 2}}, ("a", "b"), 2)
+        ({"a": {"b": 2}}, ("a", "b"), 2),
     ])
     def test_access_nested_map(self, nested_map, path, expected):
         """Test that access_nested_map returns expected results."""
@@ -28,7 +29,7 @@ class TestAccessNestedMap(unittest.TestCase):
 
     @parameterized.expand([
         ({}, ("a",)),
-        ({"a": 1}, ("a", "b"))
+        ({"a": 1}, ("a", "b")),
     ])
     def test_access_nested_map_exception(self, nested_map, path):
         """Test that KeyError is raised with correct message."""
@@ -42,7 +43,7 @@ class TestGetJson(unittest.TestCase):
 
     @parameterized.expand([
         ("http://example.com", {"payload": True}),
-        ("http://holberton.io", {"payload": False})
+        ("http://holberton.io", {"payload": False}),
     ])
     @patch('utils.requests.get')
     def test_get_json(self, test_url, test_payload, mock_get):
@@ -70,7 +71,8 @@ class TestMemoize(unittest.TestCase):
             def a_property(self):
                 return self.a_method()
 
-        with patch.object(TestClass, 'a_method', return_value=42) as mock_method:
+        with patch.object(TestClass, 'a_method',
+                          return_value=42) as mock_method:
             obj = TestClass()
             result1 = obj.a_property
             result2 = obj.a_property
