@@ -2,14 +2,14 @@
 """Unit tests for utils.access_nested_map, utils.get_json, and utils.memoize
 """
 
+import sys
+import os
 import unittest
 from unittest.mock import patch, Mock
 from parameterized import parameterized
-import sys
-import os
 
 # Adjust sys.path for module import before local imports
-sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/..')
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from utils import access_nested_map, get_json, memoize
 
@@ -70,8 +70,7 @@ class TestMemoize(unittest.TestCase):
             def a_property(self):
                 return self.a_method()
 
-        with patch.object(TestClass, 'a_method',
-                          return_value=42) as mock_method:
+        with patch.object(TestClass, 'a_method', return_value=42) as mock_method:
             obj = TestClass()
             result1 = obj.a_property
             result2 = obj.a_property
