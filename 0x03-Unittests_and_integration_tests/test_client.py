@@ -86,40 +86,20 @@ class GithubOrgClientIntegrationTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Setup mocks for integration tests."""
+        """Initiate mock for requests.get using test fixtures."""
         cls.get_patcher = patch("requests.get")
-        mock_get = cls.get_patcher.start()
-        mock_get.side_effect = [
+        mock_request = cls.get_patcher.start()
+        mock_request.side_effect = [
             MagicMock(json=lambda: cls.org_payload),
             MagicMock(json=lambda: cls.repos_payload),
             MagicMock(json=lambda: cls.org_payload),
             MagicMock(json=lambda: cls.repos_payload),
         ]
-
-@classmethod
-def tearDownClass(cls):
-    """Stop all mocks after tests complete."""
-    cls.get_patcher.stop()
 
     @classmethod
     def tearDownClass(cls):
         """Stop the requests.get mock."""
         cls.get_patcher.stop()
-
-    @classmethod
-    def _start_mocked_requests(cls):
-        cls.get_patcher = patch("requests.get")
-        mock_request = cls.get_patcher.start()
-        mock_request.side_effect = cls._generate_mock_responses()
-
-    @classmethod
-    def _generate_mock_responses(cls):
-        return [
-            MagicMock(json=lambda: cls.org_payload),
-            MagicMock(json=lambda: cls.repos_payload),
-            MagicMock(json=lambda: cls.org_payload),
-            MagicMock(json=lambda: cls.repos_payload),
-        ]
 
     def test_fetching_all_repos(self):
         """Test public_repos returns expected repo list."""
