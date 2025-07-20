@@ -86,8 +86,20 @@ class GithubOrgClientIntegrationTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Initiate mock for requests.get using test fixtures."""
-        cls._start_mocked_requests()
+        """Setup mocks for integration tests."""
+        cls.get_patcher = patch("requests.get")
+        mock_get = cls.get_patcher.start()
+        mock_get.side_effect = [
+            MagicMock(json=lambda: cls.org_payload),
+            MagicMock(json=lambda: cls.repos_payload),
+            MagicMock(json=lambda: cls.org_payload),
+            MagicMock(json=lambda: cls.repos_payload),
+        ]
+
+@classmethod
+def tearDownClass(cls):
+    """Stop all mocks after tests complete."""
+    cls.get_patcher.stop()
 
     @classmethod
     def tearDownClass(cls):
