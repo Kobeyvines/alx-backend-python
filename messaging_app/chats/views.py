@@ -1,40 +1,43 @@
-from rest_framework import viewsets, status, filters, generics  # <-- add filters here
+from rest_framework import viewsets, status
 from rest_framework.response import Response
 from .models import Conversation, Message
 from .serializers import ConversationSerializer, MessageSerializer
-from .permissions import IsOwner, IsAuthenticatedAndParticipant
+from .permissions import IsAuthenticatedAndParticipant
+from django.shortcuts import get_object_or_404
 
 class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
     permission_classes = [IsAuthenticatedAndParticipant]
-    filter_backends = [filters.OrderingFilter]  # <-- example use of filters
-    ordering_fields = ['created_at']
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
+    def perform_create(self, serializer):
+        conversation = serializer.save()
+        conversation.participants.add(self.request.user)
 
 class MessageViewSet(viewsets.ModelViewSet):
-    queryset = Message.objects.all()
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticatedAndParticipant]
-    filter_backends = [filters.OrderingFilter]  # <-- example use of filters
-    ordering_fields = ['sent_at']
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-class UserConversationListView(generics.ListAPIView):
-    serializer_class = ConversationSerializer
-    permission_classes = [IsOwner]
 
     def get_queryset(self):
-        return Conversation.objects.filter(user=self.request.user)
+        conversation_id = self.kwargs.get('conversation_pk')
+        if not conversation_id:
+            return Response(
+                {"error": "Conversation ID is required"}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return Message.objects.filter(conversation_id=conversation_id)
+
+    def perform_create(self, serializer):
+        conversation = get_object_or_404(
+            Conversation, 
+            id=self.kwargs.get('conversation_pk')
+        )
+        if self.request.user not in conversation.participants.all():
+            return Response(
+                {"error": "You are not a participant of this conversation"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        serializer.save(
+            sender=self.request.user,
+            conversation=conversation
+        )

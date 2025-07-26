@@ -18,5 +18,8 @@ class IsAuthenticatedAndParticipant(permissions.BasePermission):
         return request.user and request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
-        # Assumes obj has a 'participants' attribute (ManyToMany to User)
-        return request.user in obj.participants.all()
+        # Only participants can view, update, or delete
+        if request.method in ['GET', 'PUT', 'PATCH', 'DELETE', 'POST']:
+            return request.user in obj.participants.all()
+        # For other methods, fallback to default
+        return False
