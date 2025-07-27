@@ -7,6 +7,10 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from django.http import HttpResponse
+
+def test_view(request):
+    return HttpResponse("Test view - This will be logged by the middleware!")
 
 router = routers.DefaultRouter()
 router.register(r'conversations', ConversationViewSet, basename='conversation')
@@ -16,6 +20,7 @@ conversations_router = routers.NestedDefaultRouter(router, r'conversations', loo
 conversations_router.register(r'messages', MessageViewSet, basename='conversation-messages')
 
 urlpatterns = [
+    path('test/', test_view, name='test-view'),  # Add test endpoint
     path('', include(router.urls)),
     path('', include(conversations_router.urls)),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
