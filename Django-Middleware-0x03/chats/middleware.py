@@ -6,8 +6,57 @@ from collections import defaultdict
 from django.http import HttpResponseForbidden
 from django.core.cache import cache
 from django.conf import settings
+from django.urls import resolve
+from django.utils.functional import SimpleLazyObject
 
 logger = logging.getLogger(__name__)
+
+class RolePermissionMiddleware:
+    """Middleware to enforce role-based permissions for chat actions."""
+    
+    ADMIN_ONLY_ACTIONS = [
+        'delete_chat',
+        'ban_user',
+        'edit_settings',
+        'view_analytics',
+    ]
+    
+    MODERATOR_ACTIONS = [
+        'mute_user',
+        'delete_message',
+        'view_reports',
+    ] + ADMIN_ONLY_ACTIONS  # Moderators can also do admin actions
+    
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def _is_admin(self, user):
+        return user.is_authenticated and (user.is_staff or user.is_superuser)
+    
+    def _is_moderator(self, user):
+        return user.is_authenticated and (
+            hasattr(user, 'user_role') and 
+            getattr(user, 'user_role', '') == 'moderator'
+        )
+    
+    def _get_view_name(self, request):
+        resolver_match = resolve(request.path)
+        return resolver_match.url_name if resolver_match else None
+
+    def __call__(self, request):
+        view_name = self._get_view_name(request)
+        
+        # Only check permissions for protected views
+        if view_name in self.ADMIN_ONLY_ACTIONS or view_name in self.MODERATOR_ACTIONS:
+            user = request.user
+            
+            if view_name in self.ADMIN_ONLY_ACTIONS and not self._is_admin(user):
+                return HttpResponseForbidden("This action requires administrator privileges.")
+                
+            if view_name in self.MODERATOR_ACTIONS and not (self._is_admin(user) or self._is_moderator(user)):
+                return HttpResponseForbidden("This action requires moderator privileges.")
+            
+        return self.get_response(request)
 
 class OffensiveLanguageMiddleware:
     def __init__(self, get_response):
