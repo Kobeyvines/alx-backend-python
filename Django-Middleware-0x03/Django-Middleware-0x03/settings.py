@@ -49,7 +49,8 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",  # This must come before our middleware
-    "chats.middleware.RequestLoggingMiddleware",  # Our custom middleware
+    "chats.middleware.RestrictAccessByTimeMiddleware",  # Time restriction middleware
+    "chats.middleware.RequestLoggingMiddleware",  # Our custom logging middleware
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
