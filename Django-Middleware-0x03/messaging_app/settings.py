@@ -57,6 +57,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "messaging_app.urls"
+ROOT_URLCONF = 'middleware_project.urls'
 
 TEMPLATES = [
     {
