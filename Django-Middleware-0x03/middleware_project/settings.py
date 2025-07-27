@@ -31,10 +31,10 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',  # Must come before our middleware
+    'chats.middleware.RequestLoggingMiddleware',  # Our custom middleware
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'chats.middleware.RequestLoggingMiddleware',  # Add our custom middleware here
 ]
 
 ROOT_URLCONF = 'middleware_project.urls'
@@ -92,3 +92,33 @@ STATIC_URL = 'static/'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'requests.log',
+            'formatter': 'verbose',
+        },
+    },
+    'formatters': {
+        'verbose': {
+            'format': '[{asctime}] {levelname} {message}',
+            'style': '{',
+        },
+    },
+    'loggers': {
+        'chats.middleware': {  # Match the app and module name
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
+
+# Request logger settings
+REQUEST_LOGGER_FILE = BASE_DIR / 'logs' / 'requests.log'

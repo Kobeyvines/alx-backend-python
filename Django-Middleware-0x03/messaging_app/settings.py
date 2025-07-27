@@ -50,14 +50,11 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",  # This must come before our middleware
     "chats.middleware.RequestLoggingMiddleware",  # Our custom middleware
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-     'chats.middleware.RequestLoggingMiddleware',
 ]
 
 ROOT_URLCONF = "messaging_app.urls"
-ROOT_URLCONF = 'middleware_project.urls'
 
 TEMPLATES = [
     {
