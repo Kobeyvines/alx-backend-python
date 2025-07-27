@@ -1,0 +1,212 @@
+{
+    "info": {
+        "name": "Messaging App API",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Authentication",
+            "item": [
+                {
+                    "name": "Login (Get Token)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"username\": \"your_username\",\n    \"password\": \"your_password\"\n}"
+                        },
+                        "url": {
+                            "raw": "http://127.0.0.1:8000/api/token/",
+                            "protocol": "http",
+                            "host": ["127", "0", "0", "1"],
+                            "port": "8000",
+                            "path": ["api", "token"]
+                        },
+                        "description": "Get JWT token for authentication"
+                    }
+                },
+                {
+                    "name": "Refresh Token",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"refresh\": \"your_refresh_token\"\n}"
+                        },
+                        "url": {
+                            "raw": "http://127.0.0.1:8000/api/token/refresh/",
+                            "protocol": "http",
+                            "host": ["127", "0", "0", "1"],
+                            "port": "8000",
+                            "path": ["api", "token", "refresh"]
+                        },
+                        "description": "Refresh JWT token"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Conversations",
+            "item": [
+                {
+                    "name": "List Conversations",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{jwt_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "http://127.0.0.1:8000/api/conversations/",
+                            "protocol": "http",
+                            "host": ["127", "0", "0", "1"],
+                            "port": "8000",
+                            "path": ["api", "conversations"]
+                        },
+                        "description": "Get list of conversations"
+                    }
+                },
+                {
+                    "name": "Create Conversation",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{jwt_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"Test Conversation\",\n    \"participants\": [1, 2]\n}"
+                        },
+                        "url": {
+                            "raw": "http://127.0.0.1:8000/api/conversations/",
+                            "protocol": "http",
+                            "host": ["127", "0", "0", "1"],
+                            "port": "8000",
+                            "path": ["api", "conversations"]
+                        },
+                        "description": "Create a new conversation"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Messages",
+            "item": [
+                {
+                    "name": "List Messages in Conversation",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{jwt_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "http://127.0.0.1:8000/api/conversations/1/messages/",
+                            "protocol": "http",
+                            "host": ["127", "0", "0", "1"],
+                            "port": "8000",
+                            "path": ["api", "conversations", "1", "messages"]
+                        },
+                        "description": "Get messages in a conversation"
+                    }
+                },
+                {
+                    "name": "Send Message",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{jwt_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"content\": \"Hello, this is a test message!\"\n}"
+                        },
+                        "url": {
+                            "raw": "http://127.0.0.1:8000/api/conversations/1/messages/",
+                            "protocol": "http",
+                            "host": ["127", "0", "0", "1"],
+                            "port": "8000",
+                            "path": ["api", "conversations", "1", "messages"]
+                        },
+                        "description": "Send a message in a conversation"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Unauthorized Tests",
+            "item": [
+                {
+                    "name": "Try List Conversations Without Token",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "http://127.0.0.1:8000/api/conversations/",
+                            "protocol": "http",
+                            "host": ["127", "0", "0", "1"],
+                            "port": "8000",
+                            "path": ["api", "conversations"]
+                        },
+                        "description": "Should return 401 Unauthorized"
+                    }
+                },
+                {
+                    "name": "Try Access Non-participant Conversation",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{jwt_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "http://127.0.0.1:8000/api/conversations/999/messages/",
+                            "protocol": "http",
+                            "host": ["127", "0", "0", "1"],
+                            "port": "8000",
+                            "path": ["api", "conversations", "999", "messages"]
+                        },
+                        "description": "Should return 403 Forbidden"
+                    }
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "key": "jwt_token",
+            "value": "your_jwt_token_here"
+        }
+    ]
+}
