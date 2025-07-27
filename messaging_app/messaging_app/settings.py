@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'chats',
-    'django_filters'
+    'django_filters',
+    'request_logger'
 ]
 
 MIDDLEWARE = [
@@ -51,7 +52,11 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "request_logger.middleware.RequestLoggingMiddleware",
 ]
+
+# Request Logger settings
+REQUEST_LOGGER_FILE = BASE_DIR / 'logs' / 'requests.log'
 
 ROOT_URLCONF = "messaging_app.urls"
 
