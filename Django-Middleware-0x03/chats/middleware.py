@@ -6,11 +6,19 @@ from pathlib import Path
 # Get the base directory of the project
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Configure logging
+# Configure logging with absolute path
+LOG_FILE = os.path.join(BASE_DIR, 'requests.log')
+print(f"Logging to: {LOG_FILE}")  # Debug print
+
+# Ensure the directory exists
+os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+
+# Configure logging with mode='a' to append
 logging.basicConfig(
-    filename=os.path.join(BASE_DIR, 'requests.log'),
+    filename=LOG_FILE,
     level=logging.INFO,
     format='%(message)s',
+    filemode='a'
 )
 
 class RequestLoggingMiddleware:
