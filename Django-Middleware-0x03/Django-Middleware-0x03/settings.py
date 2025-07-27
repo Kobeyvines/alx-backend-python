@@ -50,10 +50,19 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",  # This must come before our middleware
     "chats.middleware.RestrictAccessByTimeMiddleware",  # Time restriction middleware
+    "chats.middleware.OffensiveLanguageMiddleware",  # Rate limiting middleware
     "chats.middleware.RequestLoggingMiddleware",  # Our custom logging middleware
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+# Cache configuration for rate limiting
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
 
 ROOT_URLCONF = "messaging_app.urls"
 
