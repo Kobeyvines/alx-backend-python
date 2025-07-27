@@ -3,39 +3,22 @@ import logging
 import os
 from pathlib import Path
 
-# Get the base directory of the project
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Configure logging with absolute path
-LOG_FILE = os.path.join(BASE_DIR, 'requests.log')
-print(f"Logging to: {LOG_FILE}")  # Debug print
-
-# Ensure the directory exists
-os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
-
-# Configure logging with mode='a' to append
-logging.basicConfig(
-    filename=LOG_FILE,
-    level=logging.INFO,
-    format='%(message)s',
-    filemode='a'
-)
+logger = logging.getLogger(__name__)
 
 class RequestLoggingMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
-        self.logger = logging.getLogger(__name__)
 
     def __call__(self, request):
         # Get current timestamp
-        timestamp = datetime.now()
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
         # Get user info (anonymous if not authenticated)
         user = request.user.username if request.user.is_authenticated else 'AnonymousUser'
         
         # Log the request
-        log_message = f"{timestamp} - User: {user} - Path: {request.path}"
-        self.logger.info(log_message)
+        log_message = f"[{timestamp}] User: {user} - Path: {request.path}"
+        logger.info(log_message)
 
         # Process the request
         response = self.get_response(request)
