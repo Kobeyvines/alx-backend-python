@@ -6,6 +6,8 @@ from .models import Conversation, Message
 from .serializers import ConversationSerializer, MessageSerializer
 from .permissions import IsAuthenticatedAndParticipant
 from .filters import MessageFilter
+from django.shortcuts import render
+from django.views.decorators.cache import cache_page
 from django.shortcuts import get_object_or_404
 from rest_framework.status import (
     HTTP_200_OK,
@@ -80,3 +82,14 @@ class MessageViewSet(viewsets.ModelViewSet):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=HTTP_200_OK)
+    
+@cache_page(60)  # Cache this view for 60 seconds
+def conversation_view(request, user_id):
+    # Retrieve messages between request.user and user_id
+    messages = Message.objects.filter(
+        sender=request.user, receiver_id=user_id
+    ) | Message.objects.filter(
+        sender_id=user_id, receiver=request.user
+    )
+    messages = messages.order_by('timestamp')
+    return render(request, 'messaging/conversation.html', {'messages': messages})
