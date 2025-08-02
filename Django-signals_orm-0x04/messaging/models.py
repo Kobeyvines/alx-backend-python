@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from .Models.message import Message
 
 
 class Message(models.Model):
@@ -15,6 +14,13 @@ class Message(models.Model):
         null=True,
         blank=True,
         related_name='edited_messages'
+    )
+    parent_message = models.ForeignKey(
+        'self',
+        null=True,
+        blank=True,
+        related_name='replies',
+        on_delete=models.CASCADE
     )
 
     def __str__(self):
