@@ -35,3 +35,9 @@ def get_thread(message):
 def inbox(request):
     unread_messages = Message.unread.unread_for_user(request.user).only('sender', 'content', 'timestamp')
     return render(request, 'messaging/inbox.html', {'unread_messages': unread_messages})
+
+
+@cache_page(60)
+def conversation_view(request, user_id):
+    messages = Message.objects.filter(sender=request.user, recipient_id=user_id)
+    return render(request, 'messaging/conversation.html', {'messages': messages})
