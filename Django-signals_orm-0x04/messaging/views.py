@@ -5,6 +5,8 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from .models import Message
 from django.shortcuts import render
+from django.views.decorators.cache import cache_page
+
 
 @login_required
 def delete_user(request):
