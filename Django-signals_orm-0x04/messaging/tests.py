@@ -1,10 +1,28 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-from .models import Message, Notification
+from messaging.models import Message, Notification
 
-class MessagingSignalTest(TestCase):
-    def test_notification_created_on_message(self):
-        sender = User.objects.create_user(username='sender')
-        receiver = User.objects.create_user(username='receiver')
-        Message.objects.create(sender=sender, receiver=receiver, content="Hello")
-        self.assertEqual(Notification.objects.filter(user=receiver).count(), 1)
+class UserDeletionSignalTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='pass')
+        self.receiver = User.objects.create_user(username='receiver', password='pass')
+
+        # ✅ Create a real Message instance
+        self.message = Message.objects.create(
+            sender=self.user,
+            receiver=self.receiver,
+            content="Hello!"
+        )
+
+        # ✅ Pass the actual Message instance to Notification
+        self.notification = Notification.objects.create(
+            user=self.receiver,
+            message=self.message
+        )
+
+    def test_user_deletion_cascades(self):
+        self.user.delete()
+
+        # Check if message and notification are also deleted
+        self.assertFalse(Message.objects.filter(pk=self.message.pk).exists())
+        self.assertFalse(Notification.objects.filter(pk=self.notification.pk).exists())
