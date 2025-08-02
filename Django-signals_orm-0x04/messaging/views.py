@@ -28,3 +28,8 @@ def get_thread(message):
     for reply in message.replies.all():
         thread += get_thread(reply)
     return thread
+
+
+def inbox(request):
+    unread_messages = Message.unread.for_user(request.user)
+    return render(request, 'messaging/inbox.html', {'unread_messages': unread_messages})
