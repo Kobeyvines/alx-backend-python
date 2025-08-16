@@ -1,0 +1,37 @@
+#!/bin/bash
+# Zero-downtime Blue/Green rollout helper
+
+set -euo pipefail
+
+NS="default"
+BLUE_DEP="messaging-app-blue"
+GREEN_DEP="messaging-app-green"
+SVC="messaging-app-service"
+
+echo "Applying blue and green deployments + service…"
+kubectl apply -n "$NS" -f blue_deployment.yaml
+kubectl apply -n "$NS" -f green_deployment.yaml
+kubectl apply -n "$NS" -f kubeservice.yaml
+
+echo "Ensuring BLUE is serving initially…"
+kubectl rollout status -n "$NS" deployment/"$BLUE_DEP"
+
+echo "Gradual shift: scale GREEN up (1), keep BLUE (2)…"
+kubectl scale -n "$NS" deployment/"$GREEN_DEP" --replicas=1
+kubectl rollout status -n "$NS" deployment/"$GREEN_DEP"
+kubectl get pods -n "$NS" -l app=messaging-app -o wide
+
+echo "Checking logs from GREEN pods for errors…"
+GREEN_PODS=$(kubectl get pods -n "$NS" -l app=messaging-app,version=green -o name)
+for p in $GREEN_PODS; do
+  echo "---- logs: $p ----"
+  kubectl logs -n "$NS" "$p" --tail=100 || true
+done
+
+echo "If logs look good, completing cutover (GREEN=3, BLUE=0)…"
+kubectl scale -n "$NS" deployment/"$GREEN_DEP" --replicas=3
+kubectl scale -n "$NS" deployment/"$BLUE_DEP"  --replicas=0
+kubectl rollout status -n "$NS" deployment/"$GREEN_DEP"
+
+echo "Final state:"
+kubectl get deploy,rs,pods,svc -n "$NS" -l app=messaging-app -o wide
