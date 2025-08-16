@@ -1,0 +1,35 @@
+#!/bin/bash
+# Rolling update script for messaging-app-blue
+set -euo pipefail
+
+NS="default"
+DEPLOY="messaging-app-blue"
+SERVICE="messaging-app-service"
+
+echo "Applying updated deployment..."
+kubectl apply -n "$NS" -f blue_deployment.yaml
+
+echo "Monitoring rollout..."
+kubectl rollout status deployment/"$DEPLOY" -n "$NS"
+
+# Get service ClusterIP and port
+SVC_IP=$(kubectl get svc "$SERVICE" -n "$NS" -o jsonpath='{.spec.clusterIP}')
+SVC_PORT=$(kubectl get svc "$SERVICE" -n "$NS" -o jsonpath='{.spec.ports[0].port}')
+
+echo "Testing service for downtime during rollout..."
+(
+  for i in {1..20}; do
+    if curl -s --connect-timeout 2 "http://$SVC_IP:$SVC_PORT" >/dev/null; then
+      echo "[$(date +%T)] OK"
+    else
+      echo "[$(date +%T)] FAIL"
+    fi
+    sleep 1
+  done
+) &
+
+echo "Waiting for background curl checks to finish..."
+wait
+
+echo "Current pods after rollout:"
+kubectl get pods -n "$NS" -l app=messaging-app,version=blue -o wide
