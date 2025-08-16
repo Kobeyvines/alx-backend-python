@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: messaging-app-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: messaging.local   # You can use a custom domain or edit /etc/hosts for local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: messaging-app-service  # Must match your Service name
+                port:
+                  number: 8000
+          - path: /api/
+            pathType: Prefix
+            backend:
+              service:
+                name: messaging-app-service
+                port:
+                  number: 8000

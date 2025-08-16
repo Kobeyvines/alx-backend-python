@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: messaging-app
-        image: your-dockerhub-username/messaging-app:latest  # Replace with your actual image
+        image: kobeyvines/messaging-app:latest 
         ports:
         - containerPort: 8000
         env:
