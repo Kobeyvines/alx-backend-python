@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/env bash
 # kurbeScript - Setup and check a local Kubernetes cluster with Minikube
 
 # Exit on error
