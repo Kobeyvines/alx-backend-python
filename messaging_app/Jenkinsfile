@@ -1,32 +1,22 @@
 pipeline {
     agent any
 
-    tools {
-        // ShiningPanda lets Jenkins manage Python
-        python 'Python3'
-    }
-
-    environment {
-        // Virtual environment for Python
-        VENV = "${WORKSPACE}/venv"
-    }
-
     stages {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    credentialsId: 'github-creds-id',  // replace with Jenkins credential ID
                     url: 'https://github.com/Kobeyvines/alx-backend-python.git'
             }
         }
 
-        stage('Setup Python Env') {
+        stage('Install Dependencies') {
             steps {
                 sh '''
-                    python3 -m venv $VENV
-                    . $VENV/bin/activate
-                    pip install --upgrade pip
-                    pip install -r messaging_app/requirements.txt
+                cd messaging_app
+                python3 -m venv venv
+                . venv/bin/activate
+                pip install --upgrade pip
+                pip install -r requirements.txt
                 '''
             }
         }
@@ -34,20 +24,17 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh '''
-                    . $VENV/bin/activate
-                    pytest messaging_app/tests/ --junitxml=report.xml
+                cd messaging_app
+                . venv/bin/activate
+                pytest --junitxml=results.xml
                 '''
-            }
-        }
-
-        stage('Publish Report') {
-            steps {
-                junit 'report.xml'
             }
         }
     }
 
-    triggers {
-        // Manual trigger, no auto-build
+    post {
+        always {
+            junit 'messaging_app/results.xml'
+        }
     }
 }
