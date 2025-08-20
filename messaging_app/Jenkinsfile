@@ -1,6 +1,14 @@
 pipeline {
     agent any
 
+    tools {
+        python 'Python3'
+    }
+
+    environment {
+        PIP_CACHE_DIR = '.pip-cache'
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -13,9 +21,7 @@ pipeline {
             steps {
                 sh '''
                 cd messaging_app
-                python3 -m venv venv
-                . venv/bin/activate
-                pip install --upgrade pip
+                python -m pip install --upgrade pip
                 pip install -r requirements.txt
                 '''
             }
@@ -25,7 +31,6 @@ pipeline {
             steps {
                 sh '''
                 cd messaging_app
-                . venv/bin/activate
                 pytest --junitxml=results.xml
                 '''
             }
@@ -35,6 +40,7 @@ pipeline {
     post {
         always {
             junit 'messaging_app/results.xml'
+            archiveArtifacts artifacts: 'messaging_app/results.xml', fingerprint: true
         }
     }
 }
