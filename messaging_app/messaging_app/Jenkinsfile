@@ -13,9 +13,8 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                    cd messaging_app
                     python3 -m pip install --upgrade pip
-                    pip install -r requirements.txt
+                    pip3 install -r messaging_app/requirements.txt
                 '''
             }
         }
@@ -23,8 +22,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh '''
-                    cd messaging_app
-                    pytest --junitxml=test-results/results.xml || true
+                    pytest messaging_app/tests --junitxml=messaging_app/test-results/results.xml || true
                 '''
             }
         }
