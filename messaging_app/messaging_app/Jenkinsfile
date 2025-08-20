@@ -1,11 +1,15 @@
 pipeline {
     agent any
 
-    tools {
-        jenkins.plugins.shiningpanda.tools.PythonInstallation('python3')
-    }
-
     stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/Kobeyvines/alx-backend-python.git',
+                    credentialsId: 'github-creds'
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
                 sh '''
