@@ -1,32 +1,30 @@
 pipeline {
     agent any
     tools {
-        python 'Python3'   // matches the name you gave in Tools
+        jenkins.plugins.shiningpanda.tools.PythonInstallation 'Python3'
     }
     stages {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                cd messaging_app
-                pip install --upgrade pip
-                pip install -r requirements.txt
-                pip install pytest pytest-cov
+                    cd messaging_app
+                    python3 -m pip install --upgrade pip
+                    pip install -r requirements.txt
                 '''
             }
         }
         stage('Run Tests') {
             steps {
                 sh '''
-                cd messaging_app
-                pytest --junitxml=results.xml || true
+                    cd messaging_app
+                    pytest --junitxml=test-results/results.xml || true
                 '''
             }
         }
     }
     post {
         always {
-            junit 'messaging_app/results.xml'
-            archiveArtifacts artifacts: 'messaging_app/results.xml', fingerprint: true
+            junit 'messaging_app/test-results/*.xml'
         }
     }
 }
