@@ -5,37 +5,43 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/Kobeyvines/alx-backend-python.git',
-                    credentialsId: 'github-creds_id'
+                    url: 'https://github.com/Kobeyvines/alx-backend-python.git'
+            }
+        }
+
+        stage('Install System Dependencies') {
+            steps {
+                sh '''
+                    apt-get update
+                    apt-get install -y pkg-config default-libmysqlclient-dev gcc
+                '''
             }
         }
 
         stage('Install Dependencies') {
-    steps {
-        sh '''
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install --upgrade pip
-            pip install -r messaging_app/requirements.txt
-        '''
-    }
-}
-
+            steps {
+                sh '''
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip install --upgrade pip
+                    pip install -r messaging_app/requirements.txt
+                '''
+            }
+        }
 
         stage('Run Tests') {
-    steps {
-        sh '''
-            . venv/bin/activate
-            pytest messaging_app/tests --junitxml=messaging_app/test-results/results.xml || true
-        '''
-    }
-}
-
+            steps {
+                sh '''
+                    . venv/bin/activate
+                    pytest messaging_app/tests --junitxml=messaging_app/test-results/results.xml || true
+                '''
+            }
+        }
     }
 
     post {
         always {
-            junit 'messaging_app/test-results/*.xml'
+            junit 'messaging_app/test-results/results.xml'
         }
     }
 }
