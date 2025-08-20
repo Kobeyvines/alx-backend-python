@@ -22,7 +22,7 @@ pipeline {
 }
 
 
-        sstage('Run Tests') {
+        stage('Run Tests') {
     steps {
         sh '''
             . venv/bin/activate
