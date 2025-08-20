@@ -1,8 +1,10 @@
 pipeline {
     agent any
+
     tools {
-        jenkins.plugins.shiningpanda.tools.PythonInstallation 'python3'
+        jenkins.plugins.shiningpanda.tools.PythonInstallation('python3')
     }
+
     stages {
         stage('Install Dependencies') {
             steps {
@@ -13,6 +15,7 @@ pipeline {
                 '''
             }
         }
+
         stage('Run Tests') {
             steps {
                 sh '''
@@ -22,6 +25,7 @@ pipeline {
             }
         }
     }
+
     post {
         always {
             junit 'messaging_app/test-results/*.xml'
