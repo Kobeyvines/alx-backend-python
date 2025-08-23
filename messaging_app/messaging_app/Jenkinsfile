@@ -1,24 +1,68 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.11'  // official Python image
-        }
+  agent any
+  options {
+    timestamps()
+    ansiColor('xterm')
+    skipDefaultCheckout(true)
+  }
+  triggers { /* manual only */ }
+
+  environment {
+    PIP_DISABLE_PIP_VERSION_CHECK = '1'
+    PYTHONUNBUFFERED = '1'
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        // Uses the job's SCM config
+        checkout scm
+      }
     }
-    stages {
-        stage('Install Dependencies') {
-            steps {
-                sh 'pip install -r messaging_app/requirements.txt'
-            }
+
+    stage('Set up Python env & install deps') {
+      steps {
+        // Uses the ShiningPanda-registered Python (configured in Global Tool Configuration)
+        withPythonEnv('CPython-3.11') { // provided by Pyenv Pipeline plugin
+          dir('messaging_app') {
+            sh '''
+              python --version
+              mkdir -p reports
+              # Install project deps if file exists
+              if [ -f requirements.txt ]; then
+                pip install --upgrade pip wheel
+                pip install -r requirements.txt
+              fi
+              # Ensure test tooling is present
+              pip install pytest pytest-html
+            '''
+          }
         }
-        stage('Run Tests') {
-            steps {
-                sh 'pytest --junitxml=results.xml'
-            }
-            post {
-                always {
-                    junit 'results.xml'
-                }
-            }
-        }
+      }
     }
+
+    stage('Run tests') {
+      steps {
+        withPythonEnv('CPython-3.11') {
+          dir('messaging_app') {
+            sh '''
+              # Adjust tests/ if your tests live elsewhere
+              pytest -q tests \
+                --maxfail=1 --disable-warnings \
+                --junitxml=reports/junit.xml \
+                --html=reports/pytest.html --self-contained-html
+            '''
+          }
+        }
+      }
+      post {
+        always {
+          // Publish JUnit (visible under "Test Result")
+          junit testResults: 'messaging_app/reports/junit.xml', allowEmptyResults: true
+          // Keep HTML + XML artifacts
+          archiveArtifacts artifacts: 'messaging_app/reports/**', fingerprint: true, onlyIfSuccessful: false
+        }
+      }
+    }
+  }
 }
